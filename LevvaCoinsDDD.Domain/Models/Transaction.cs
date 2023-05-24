@@ -1,6 +1,8 @@
 ﻿using LevvaCoinsDDD.Domain.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LevvaCoinsDDD.Domain.Models;
+[ExcludeFromCodeCoverage]
 public class Transaction : BaseEntity
 {
     public string Title { get; set; }
