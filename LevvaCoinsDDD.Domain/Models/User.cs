@@ -1,4 +1,7 @@
-﻿namespace LevvaCoinsDDD.Domain.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace LevvaCoinsDDD.Domain.Models;
+[ExcludeFromCodeCoverage]
 public class User : BaseEntity
 {
     public string Name { get; set; }

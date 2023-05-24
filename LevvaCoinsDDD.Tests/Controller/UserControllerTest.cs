@@ -107,6 +107,25 @@ public class UserControllerTest
         fakeUser.Id.Should().Be(fakeUserId);
     }
 
+    [Fact(DisplayName = nameof(UserController_Login_ReturnBadRequest))]
+    [Trait("Controller", "User - Controller")]
+    public async void UserController_Login_ReturnBadRequest()
+    {
+        // Arrange
+        var fakeLogin = A.Fake<LoginDTO>();
+        LoginDTO nullFakeLogin = null;
+
+        A.CallTo(() => _userService.Login(A<LoginDTO>.Ignored))
+         .Returns(nullFakeLogin);
+
+        // Act
+        var result = await _userController.Login(fakeLogin);
+
+        // Assert
+        A.CallTo(() => _userService.Login(A<LoginDTO>.Ignored)).MustHaveHappenedOnceExactly();
+        result.Result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
     [Fact(DisplayName = nameof(UserController_Login_ReturnOK))]
     [Trait("Controller", "User - Controller")]
     public async void UserController_Login_ReturnOK()
