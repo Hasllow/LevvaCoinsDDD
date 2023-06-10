@@ -1,6 +1,7 @@
-﻿using LevvaCoinsDDD.Application.Dtos;
+﻿using LevvaCoinsDDD.Application.Dtos.Category;
 
 namespace LevvaCoinsDDD.Application.Interfaces.Services;
-public interface ICategoryService : IService<CategoryDTO, CategoryUpdateDTO>
+public interface ICategoryService : IService<CategoryNewAndUpdateDTO, CategoryDTO,
+    CategoryNewAndUpdateDTO, CategoryDTO, bool, CategoryDTO, bool>
 {
 }

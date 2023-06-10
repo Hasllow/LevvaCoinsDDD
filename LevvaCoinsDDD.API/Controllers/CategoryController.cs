@@ -1,4 +1,4 @@
-﻿using LevvaCoinsDDD.Application.Dtos;
+﻿using LevvaCoinsDDD.Application.Dtos.Category;
 using LevvaCoinsDDD.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,36 +14,53 @@ public class CategoryController : ControllerBase
         _categoryService = categoryService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAllAsync()
-    {
-        return Ok(await _categoryService.GetAllAsync());
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<CategoryDTO>> GetByIdAsync(Guid id)
-    {
-        return Ok(await _categoryService.GetByIdAsync(id));
-    }
-
     [HttpPost]
     public async Task<ActionResult> CreateAsync(CategoryDTO category)
     {
-        await _categoryService.CreateAsync(category);
-        return Created("", category);
+        var response = await _categoryService.CreateAsync(category);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
+        return Created(response.data.Id, response.data);
     }
 
     [HttpDelete]
-    public async Task<ActionResult> DeleteAsync(Guid id)
+    public async Task<ActionResult> DeleteAsync(string id)
     {
-        await _categoryService.DeleteAsync(id);
+        var response = await _categoryService.DeleteAsync(id);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
         return NoContent();
     }
 
-    [HttpPut]
-    public async Task<ActionResult> UpdateAsync(CategoryUpdateDTO category)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAllAsync()
     {
-        await _categoryService.UpdateAsync(category);
+        var response = await _categoryService.GetAllAsync();
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
+        return Ok(response.collectionData);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<CategoryDTO>> GetByIdAsync(string id)
+    {
+        var response = await _categoryService.GetByIdAsync(id);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
+        return Ok(response.data);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateAsync(string id, CategoryDTO category)
+    {
+        var response = await _categoryService.UpdateAsync(id, category);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
         return NoContent();
     }
 }

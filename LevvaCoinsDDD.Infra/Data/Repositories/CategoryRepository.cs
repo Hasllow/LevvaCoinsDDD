@@ -28,7 +28,7 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<IEnumerable<Category>> GetAllAsync()
     {
-        return await _context.Category.ToListAsync();
+        return await _context.Category.OrderBy(x => x.Description).ToListAsync();
     }
 
     public async Task<Category> GetByIdAsync(Guid id)
