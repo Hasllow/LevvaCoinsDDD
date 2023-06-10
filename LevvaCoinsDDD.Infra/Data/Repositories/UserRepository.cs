@@ -30,6 +30,10 @@ public class UserRepository : IUserRepository
     {
         return await _context.User.ToListAsync();
     }
+    public async Task<User> GetByEmailAsync(string email)
+    {
+        return await _context.User.FirstOrDefaultAsync(x => x.Email.Equals(email));
+    }
 
     public async Task<User> GetByEmailAndPasswordAsync(string email, string password)
     {
