@@ -15,7 +15,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateAsync(CategoryDTO category)
+    public async Task<ActionResult> CreateAsync(CategoryNewAndUpdateDTO category)
     {
         var response = await _categoryService.CreateAsync(category);
 
@@ -55,7 +55,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateAsync(string id, CategoryDTO category)
+    public async Task<ActionResult> UpdateAsync(string id, CategoryNewAndUpdateDTO category)
     {
         var response = await _categoryService.UpdateAsync(id, category);
 

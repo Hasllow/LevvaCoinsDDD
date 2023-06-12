@@ -1,7 +1,7 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
 using LevvaCoinsDDD.API.Controllers;
-using LevvaCoinsDDD.Application.Dtos;
+using LevvaCoinsDDD.Application.Dtos.Category;
 using LevvaCoinsDDD.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 

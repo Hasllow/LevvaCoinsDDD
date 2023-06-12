@@ -12,10 +12,29 @@ public class TransactionRepository : ITransactionRepository
     {
         _context = context;
     }
+
     public async Task CreateAsync(Transaction entity)
     {
         _context.Transaction.Add(entity);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<Transaction> CreateAndReturnAsync(Transaction entity)
+    {
+        _context.Transaction.Add(entity);
+        await _context.SaveChangesAsync();
+
+        return await _context.Transaction.Where(transaction => transaction.Id == entity.Id).Select(transaction =>
+        new Transaction
+        {
+            Id = transaction.Id,
+            Description = transaction.Description,
+            Amount = transaction.Amount,
+            Type = transaction.Type,
+            Date = transaction.Date,
+            CategoryID = transaction.Category.Id,
+            Category = transaction.Category,
+        }).SingleAsync();
     }
 
     public async Task DeleteAsync(Guid id)
@@ -35,6 +54,20 @@ public class TransactionRepository : ITransactionRepository
         return await _context.Transaction.FirstOrDefaultAsync(x => x.Id.Equals(id));
     }
 
+    public async Task<IEnumerable<Transaction>> GetByUserIdAsync(Guid userId)
+    {
+        return await _context.Transaction.Where(transaction => transaction.UserID == userId).Select(transaction =>
+        new Transaction
+        {
+            Id = transaction.Id,
+            Description = transaction.Description,
+            Amount = transaction.Amount,
+            Type = transaction.Type,
+            Date = transaction.Date,
+            CategoryID = transaction.Category.Id,
+            Category = transaction.Category,
+        }).ToListAsync();
+    }
     public async Task UpdateAsync(Transaction entity)
     {
         _context.Transaction.Update(entity);

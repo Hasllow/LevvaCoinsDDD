@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FakeItEasy;
 using FluentAssertions;
-using LevvaCoinsDDD.Application.Dtos;
+using LevvaCoinsDDD.Application.Dtos.User;
 using LevvaCoinsDDD.Application.Services;
 using LevvaCoinsDDD.Domain.Models;
 using LevvaCoinsDDD.Infra.Data.Interfaces.Repositories;

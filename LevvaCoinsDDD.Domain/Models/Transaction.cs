@@ -5,7 +5,6 @@ namespace LevvaCoinsDDD.Domain.Models;
 [ExcludeFromCodeCoverage]
 public class Transaction : BaseEntity
 {
-    public string Title { get; set; }
     public string Description { get; set; }
     public decimal Amount { get; set; }
     public ETransaction Type { get; set; }

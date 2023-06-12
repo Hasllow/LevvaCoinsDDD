@@ -1,4 +1,4 @@
-﻿using LevvaCoinsDDD.Application.Dtos;
+﻿using LevvaCoinsDDD.Application.Dtos.Transaction;
 using LevvaCoinsDDD.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,36 +14,58 @@ public class TransactionController : ControllerBase
         _transactionService = transactionService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<TransactionDTO>>> GetAllAsync()
-    {
-        return Ok(await _transactionService.GetAllAsync());
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TransactionDTO>> GetByIdAsync(Guid id)
-    {
-        return Ok(await _transactionService.GetByIdAsync(id));
-    }
-
     [HttpPost]
-    public async Task<ActionResult> CreateAsync(TransactionDTO transaction)
+    public async Task<ActionResult> CreateAsync(TransactionNewDTO transaction)
     {
-        await _transactionService.CreateAsync(transaction);
-        return Created("", transaction);
+        Request.Headers.TryGetValue("Authorization", out var token);
+        var response = await _transactionService.CreateAsync(transaction, token);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
+        return Created(response.data.Id, response.data);
     }
 
-    [HttpDelete]
-    public async Task<ActionResult> DeleteAsync(Guid id)
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteAsync(string id)
     {
-        await _transactionService.DeleteAsync(id);
+        Request.Headers.TryGetValue("Authorization", out var token);
+        var response = await _transactionService.DeleteAsync(id, token);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
         return NoContent();
     }
 
-    [HttpPut]
-    public async Task<ActionResult> UpdateAsync(TransactionUpdateDTO transaction)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TransactionResponseByUserDTO>>> GetAllAsync()
     {
-        await _transactionService.UpdateAsync(transaction);
+        Request.Headers.TryGetValue("Authorization", out var token);
+        var response = await _transactionService.GetAllAsync(token);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
+        return Ok(response.collectionData);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<TransactionDTO>> GetByIdAsync(string id)
+    {
+        Request.Headers.TryGetValue("Authorization", out var token);
+        var response = await _transactionService.GetByIdAsync(id, token);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
+        return Ok(response.data);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateAsync(string id, TransactionUpdateDTO transaction)
+    {
+        Request.Headers.TryGetValue("Authorization", out var token);
+        var response = await _transactionService.UpdateAsync(id, transaction, token);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
         return NoContent();
     }
 }

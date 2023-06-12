@@ -47,6 +47,12 @@ namespace LevvaCoinsDDD.API
             builder.Services.AddLevvaService(builder.Configuration);
 
 
+            builder.Services.AddCors(policyBuilder =>
+                policyBuilder.AddDefaultPolicy(policy =>
+                policy.WithOrigins("*").AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod())
+            );
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -61,6 +67,8 @@ namespace LevvaCoinsDDD.API
             app.UseAuthorization();
 
             app.UseAuthentication();
+
+            app.UseCors();
 
             app.MapControllers();
 
