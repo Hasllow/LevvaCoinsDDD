@@ -59,12 +59,15 @@ public class UserControllerTest
     {
         // Arrange
         var fakeUser = A.Fake<UserNewAccountDTO>();
+        var fakeResponse = A.Fake<ResponseApiDTO<UserDTO>>();
+        fakeResponse.data = A.Fake<UserDTO>();
+        A.CallTo(() => _userService.CreateAsync(A<UserNewAccountDTO>.Ignored)).Returns(fakeResponse);
 
         // Act
         var result = await _userController.CreateAsync(fakeUser);
 
         // Assert
-        result.As<CreatedResult>().Should().NotBeNull();
+        result.Result.As<CreatedResult>().Should().NotBeNull();
     }
 
     [Fact(DisplayName = nameof(UserController_DeleteAsync_ReturnNoContent))]
@@ -114,9 +117,11 @@ public class UserControllerTest
     {
         // Arrange
         var fakeLogin = A.Fake<LoginDTO>();
-        ResponseApiDTO<LoginValuesDTO> nullFakeLogin = null;
+        var fakeResponse = A.Fake<ResponseApiDTO<LoginValuesDTO>>();
+        fakeResponse.data = A.Fake<LoginValuesDTO>();
+        fakeResponse.hasError = true;
 
-        A.CallTo(() => _userService.Login(A<LoginDTO>.Ignored)).Returns(nullFakeLogin);
+        A.CallTo(() => _userService.Login(A<LoginDTO>.Ignored)).Returns(fakeResponse);
 
         // Act
         var result = await _userController.Login(fakeLogin);

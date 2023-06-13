@@ -4,6 +4,7 @@ using LevvaCoinsDDD.API.Controllers;
 using LevvaCoinsDDD.Application.Dtos;
 using LevvaCoinsDDD.Application.Dtos.Transaction;
 using LevvaCoinsDDD.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LevvaCoinsDDD.Tests.Controller;
@@ -16,6 +17,20 @@ public class TransactionControllerTest
     {
         _transactionService = A.Fake<ITransactionService>();
         _transactionController = new TransactionController(_transactionService);
+
+
+        var token = "Bearer teste";
+        var mockHttpContext = new DefaultHttpContext
+        {
+            RequestServices = A.Fake<IServiceProvider>()
+        };
+        mockHttpContext.Request.Headers.Add("Authorization", token);
+        _transactionController.ControllerContext = new ControllerContext
+        {
+            HttpContext = mockHttpContext
+        };
+
+
     }
 
     [Fact(DisplayName = nameof(TransactionController_GetAllAsync_ReturnOk))]
@@ -24,8 +39,6 @@ public class TransactionControllerTest
     {
         // Arrange
         var fakeResponse = A.Fake<ResponseApiDTO<TransactionResponseByUserDTO>>();
-
-        fakeResponse.collectionData = new List<TransactionResponseByUserDTO>() { A.Fake<TransactionResponseByUserDTO>() }.AsEnumerable();
 
         A.CallTo(() => _transactionService.GetAllAsync(A<string>.Ignored)).Returns(fakeResponse);
 
@@ -47,7 +60,7 @@ public class TransactionControllerTest
         var fakeTransactionIdArgument = "54c30c07-405f-4103-9e4a-76d5479e5689";
 
         A.CallTo(() => _transactionService.GetByIdAsync(A<string>.Ignored, A<string>.Ignored))
-            .Invokes((string id) => { fakeTransactionId = Guid.Parse(id); });
+            .Invokes((string id, string token) => { fakeTransactionId = Guid.Parse(id); });
 
         // Act
         var result = await _transactionController.GetByIdAsync(fakeTransactionIdArgument);
@@ -63,7 +76,10 @@ public class TransactionControllerTest
     public async void TransactionController_CreateAsync_ReturnCreated()
     {
         // Arrange
+        var fakeResponse = A.Fake<ResponseApiDTO<TransactionResponseByUserDTO>>();
+        fakeResponse.data = A.Fake<TransactionResponseByUserDTO>();
         var fakeTransaction = A.Fake<TransactionNewDTO>();
+        A.CallTo(() => _transactionService.CreateAsync(A<TransactionNewDTO>.Ignored, A<string>.Ignored)).Returns(fakeResponse);
 
         // Act
         var result = await _transactionController.CreateAsync(fakeTransaction);
