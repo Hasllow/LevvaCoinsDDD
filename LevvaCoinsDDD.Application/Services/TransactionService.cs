@@ -93,6 +93,19 @@ public class TransactionService : ITransactionService
         return new ResponseApiDTO<TransactionResponseByUserDTO> { hasError = false, data = mappedTransaction };
     }
 
+    public async Task<ResponseApiDTO<TransactionResponseByUserDTO>> SearchAsync(string searchParam, string token)
+    {
+        var allTransactions = await GetAllAsync(token);
+
+        var filteredTransactions = allTransactions.collectionData.Where(transaction =>
+            transaction.Description.Contains(searchParam, StringComparison.InvariantCultureIgnoreCase) ||
+            transaction.Amount.ToString().Contains(searchParam, StringComparison.InvariantCultureIgnoreCase) ||
+            Enum.GetName(transaction.Type).Contains(searchParam, StringComparison.InvariantCultureIgnoreCase) ||
+            transaction.Category.Description.Contains(searchParam, StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+        return new ResponseApiDTO<TransactionResponseByUserDTO> { hasError = false, collectionData = filteredTransactions };
+    }
+
     public async Task<ResponseApiDTO<bool>> UpdateAsync(string transactionId, TransactionUpdateDTO entity, string token)
     {
         var hasConvertedId = Guid.TryParse(transactionId, out var guidId);

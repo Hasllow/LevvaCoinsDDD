@@ -48,7 +48,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TransactionDTO>> GetByIdAsync(string id)
+    public async Task<ActionResult<TransactionResponseByUserDTO>> GetByIdAsync(string id)
     {
         Request.Headers.TryGetValue("Authorization", out var token);
         var response = await _transactionService.GetByIdAsync(id, token);
@@ -67,5 +67,16 @@ public class TransactionController : ControllerBase
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
         return NoContent();
+    }
+
+    [HttpGet("search/{searchParam}")]
+    public async Task<ActionResult<TransactionResponseByUserDTO>> SearchAsync(string searchParam)
+    {
+        Request.Headers.TryGetValue("Authorization", out var token);
+        var response = await _transactionService.SearchAsync(searchParam, token);
+
+        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
+        return Ok(response.collectionData);
     }
 }
