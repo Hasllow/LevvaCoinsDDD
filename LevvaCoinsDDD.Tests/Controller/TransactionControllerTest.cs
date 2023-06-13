@@ -38,10 +38,10 @@ public class TransactionControllerTest
     {
         // Arrange
         var fakeTransactionId = new Guid();
-        var fakeTransactionIdArgument = new Guid("54c30c07-405f-4103-9e4a-76d5479e5689");
+        var fakeTransactionIdArgument = "54c30c07-405f-4103-9e4a-76d5479e5689";
 
-        A.CallTo(() => _transactionService.GetByIdAsync(A<Guid>.Ignored))
-            .Invokes((Guid id) => { fakeTransactionId = id; });
+        A.CallTo(() => _transactionService.GetByIdAsync(A<string>.Ignored, A<string>.Ignored))
+            .Invokes((string id) => { fakeTransactionId = Guid.Parse(id); });
 
         // Act
         var result = await _transactionController.GetByIdAsync(fakeTransactionIdArgument);
@@ -57,7 +57,7 @@ public class TransactionControllerTest
     public async void TransactionController_CreateAsync_ReturnCreated()
     {
         // Arrange
-        var fakeTransaction = A.Fake<TransactionDTO>();
+        var fakeTransaction = A.Fake<TransactionNewDTO>();
 
         // Act
         var result = await _transactionController.CreateAsync(fakeTransaction);
@@ -73,11 +73,11 @@ public class TransactionControllerTest
         // Arrange
         var transactionDeleted = false;
 
-        A.CallTo(() => _transactionService.DeleteAsync(A<Guid>.Ignored))
+        A.CallTo(() => _transactionService.DeleteAsync(A<string>.Ignored, A<string>.Ignored))
             .Invokes(() => { transactionDeleted = true; });
 
         // Act
-        var result = await _transactionController.DeleteAsync(Guid.NewGuid());
+        var result = await _transactionController.DeleteAsync("");
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
@@ -90,20 +90,20 @@ public class TransactionControllerTest
     {
         // Arrange
         var fakeTransaction = A.Fake<TransactionUpdateDTO>();
-        var fakeTransactionId = Guid.NewGuid();
+        var fakeTransactionDescription = "Teste";
 
-        A.CallTo(() => _transactionService.UpdateAsync(A<TransactionUpdateDTO>.Ignored))
+        A.CallTo(() => _transactionService.UpdateAsync(A<string>.Ignored, A<TransactionUpdateDTO>.Ignored, A<string>.Ignored))
             .Invokes(() =>
             {
-                fakeTransaction.Id = fakeTransactionId;
+                fakeTransaction.Description = fakeTransactionDescription;
             });
 
         // Act
-        var result = await _transactionController.UpdateAsync(fakeTransaction);
+        var result = await _transactionController.UpdateAsync("", fakeTransaction);
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
         result.As<NoContentResult>().Should().NotBeSameAs(fakeTransaction);
-        fakeTransaction.Id.Should().Be(fakeTransactionId);
+        fakeTransaction.Description.Should().Be(fakeTransactionDescription);
     }
 }

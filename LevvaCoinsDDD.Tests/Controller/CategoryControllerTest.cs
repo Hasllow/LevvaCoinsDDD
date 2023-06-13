@@ -38,10 +38,10 @@ public class CategoryControllerTest
     {
         // Arrange
         var fakeCategoryId = new Guid();
-        var fakeCategoryIdArgument = new Guid("54c30c07-405f-4103-9e4a-76d5479e5689");
+        var fakeCategoryIdArgument = "54c30c07-405f-4103-9e4a-76d5479e5689";
 
-        A.CallTo(() => _categoryService.GetByIdAsync(A<Guid>.Ignored))
-            .Invokes((Guid id) => { fakeCategoryId = id; });
+        A.CallTo(() => _categoryService.GetByIdAsync(A<string>.Ignored))
+            .Invokes((string id) => { fakeCategoryId = Guid.Parse(id); });
 
         // Act
         var result = await _categoryController.GetByIdAsync(fakeCategoryIdArgument);
@@ -57,7 +57,7 @@ public class CategoryControllerTest
     public async void CategoryController_CreateAsync_ReturnCreated()
     {
         // Arrange
-        var fakeCategory = A.Fake<CategoryDTO>();
+        var fakeCategory = A.Fake<CategoryNewAndUpdateDTO>();
 
         // Act
         var result = await _categoryController.CreateAsync(fakeCategory);
@@ -73,11 +73,11 @@ public class CategoryControllerTest
         // Arrange
         var categoryDeleted = false;
 
-        A.CallTo(() => _categoryService.DeleteAsync(A<Guid>.Ignored))
+        A.CallTo(() => _categoryService.DeleteAsync(A<string>.Ignored))
             .Invokes(() => { categoryDeleted = true; });
 
         // Act
-        var result = await _categoryController.DeleteAsync(Guid.NewGuid());
+        var result = await _categoryController.DeleteAsync("");
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
@@ -89,21 +89,21 @@ public class CategoryControllerTest
     public async void CategoryController_UpdateAsync_ReturnNoContent()
     {
         // Arrange
-        var fakeCategory = A.Fake<CategoryUpdateDTO>();
-        var fakeCategoryId = Guid.NewGuid();
+        var fakeCategory = A.Fake<CategoryNewAndUpdateDTO>();
+        var fakeCategoryDescription = "Teste";
 
-        A.CallTo(() => _categoryService.UpdateAsync(A<CategoryUpdateDTO>.Ignored))
+        A.CallTo(() => _categoryService.UpdateAsync(A<string>.Ignored, A<CategoryNewAndUpdateDTO>.Ignored))
             .Invokes(() =>
             {
-                fakeCategory.Id = fakeCategoryId;
+                fakeCategory.Description = fakeCategoryDescription;
             });
 
         // Act
-        var result = await _categoryController.UpdateAsync(fakeCategory);
+        var result = await _categoryController.UpdateAsync("", fakeCategory);
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
         result.As<NoContentResult>().Should().NotBeSameAs(fakeCategory);
-        fakeCategory.Id.Should().Be(fakeCategoryId);
+        fakeCategory.Description.Should().Be(fakeCategoryDescription);
     }
 }

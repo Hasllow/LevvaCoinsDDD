@@ -1,6 +1,7 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
 using LevvaCoinsDDD.API.Controllers;
+using LevvaCoinsDDD.Application.Dtos;
 using LevvaCoinsDDD.Application.Dtos.User;
 using LevvaCoinsDDD.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -38,10 +39,10 @@ public class UserControllerTest
     {
         // Arrange
         var fakeUserId = new Guid();
-        var fakeUserIdArgument = new Guid("54c30c07-405f-4103-9e4a-76d5479e5689");
+        var fakeUserIdArgument = "54c30c07-405f-4103-9e4a-76d5479e5689";
 
-        A.CallTo(() => _userService.GetByIdAsync(A<Guid>.Ignored))
-            .Invokes((Guid id) => { fakeUserId = id; });
+        A.CallTo(() => _userService.GetByIdAsync(A<string>.Ignored))
+            .Invokes((string id) => { fakeUserId = Guid.Parse(id); });
 
         // Act
         var result = await _userController.GetByIdAsync(fakeUserIdArgument);
@@ -57,7 +58,7 @@ public class UserControllerTest
     public async void UserController_CreateAsync_ReturnCreated()
     {
         // Arrange
-        var fakeUser = A.Fake<UserDTO>();
+        var fakeUser = A.Fake<UserNewAccountDTO>();
 
         // Act
         var result = await _userController.CreateAsync(fakeUser);
@@ -73,11 +74,11 @@ public class UserControllerTest
         // Arrange
         var userDeleted = false;
 
-        A.CallTo(() => _userService.DeleteAsync(A<Guid>.Ignored))
+        A.CallTo(() => _userService.DeleteAsync(A<string>.Ignored))
             .Invokes(() => { userDeleted = true; });
 
         // Act
-        var result = await _userController.DeleteAsync(Guid.NewGuid());
+        var result = await _userController.DeleteAsync("");
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
@@ -90,21 +91,21 @@ public class UserControllerTest
     {
         // Arrange
         var fakeUser = A.Fake<UserUpdateDTO>();
-        var fakeUserId = Guid.NewGuid();
+        var fakeUserName = "Teste";
 
-        A.CallTo(() => _userService.UpdateAsync(A<UserUpdateDTO>.Ignored))
+        A.CallTo(() => _userService.UpdateAsync(A<string>.Ignored, A<UserUpdateDTO>.Ignored))
             .Invokes(() =>
             {
-                fakeUser.Id = fakeUserId;
+                fakeUser.Name = fakeUserName;
             });
 
         // Act
-        var result = await _userController.UpdateAsync(fakeUser);
+        var result = await _userController.UpdateAsync("", fakeUser);
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
         result.As<NoContentResult>().Should().NotBeSameAs(fakeUser);
-        fakeUser.Id.Should().Be(fakeUserId);
+        fakeUser.Name.Should().Be(fakeUserName);
     }
 
     [Fact(DisplayName = nameof(UserController_Login_ReturnBadRequest))]
@@ -113,10 +114,9 @@ public class UserControllerTest
     {
         // Arrange
         var fakeLogin = A.Fake<LoginDTO>();
-        LoginDTO nullFakeLogin = null;
+        ResponseApiDTO<LoginValuesDTO> nullFakeLogin = null;
 
-        A.CallTo(() => _userService.Login(A<LoginDTO>.Ignored))
-         .Returns(nullFakeLogin);
+        A.CallTo(() => _userService.Login(A<LoginDTO>.Ignored)).Returns(nullFakeLogin);
 
         // Act
         var result = await _userController.Login(fakeLogin);
