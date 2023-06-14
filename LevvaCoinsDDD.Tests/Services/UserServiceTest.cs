@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FakeItEasy;
 using FluentAssertions;
+using LevvaCoinsDDD.Application.Dtos;
 using LevvaCoinsDDD.Application.Dtos.User;
 using LevvaCoinsDDD.Application.Services;
 using LevvaCoinsDDD.Domain.Models;
@@ -29,6 +30,8 @@ public class UserServiceTest
     {
         // Arrange
         var fakeUserDTO = A.Fake<UserNewAccountDTO>();
+        fakeUserDTO.Email = "email@email.com";
+        A.CallTo(() => _userRepository.GetByEmailAsync(A<string>.Ignored)).Returns(Task.FromResult<User>(null));
 
         // Act
         await _userService.CreateAsync(fakeUserDTO);
@@ -42,7 +45,7 @@ public class UserServiceTest
     public async void UserService_DeleteAsync_ReturnVoid()
     {
         // Arrange
-        var fakeId = "";
+        var fakeId = Guid.NewGuid().ToString();
 
         // Act
         await _userService.DeleteAsync(fakeId);
@@ -62,7 +65,7 @@ public class UserServiceTest
 
         // Assert
         A.CallTo(() => _userRepository.GetAllAsync()).MustHaveHappenedOnceExactly();
-        result.As<IEnumerable<UserDTO>>().Should().NotBeNull();
+        result.As<ResponseApiDTO<UserDTO>>().Should().NotBeNull();
     }
 
     [Fact(DisplayName = nameof(UserService_GetByIdAsync_ReturnUserDTO))]
@@ -71,7 +74,7 @@ public class UserServiceTest
     {
         // Arrange
         var fakeUser = A.Fake<UserDTO>();
-        var fakeId = "";
+        var fakeId = Guid.NewGuid().ToString();
         A.CallTo(() => _mapper.Map<UserDTO>(A<User>.Ignored)).Returns(fakeUser);
 
         // Act
@@ -79,8 +82,8 @@ public class UserServiceTest
 
         // Assert
         A.CallTo(() => _userRepository.GetByIdAsync(Guid.Parse(fakeId))).MustHaveHappenedOnceExactly();
-        result.As<UserDTO>().Should().NotBeNull();
-        result.Should().BeEquivalentTo(fakeUser);
+        result.As<ResponseApiDTO<UserDTO>>().Should().NotBeNull();
+        result.data.Should().BeEquivalentTo(fakeUser);
     }
 
     [Fact(DisplayName = nameof(UserService_GetByIdAsync_ReturnUserDTO))]
@@ -88,10 +91,13 @@ public class UserServiceTest
     public async void UserService_UpdateAsync_ReturnVoid()
     {
         // Arrange
+        var fakeUserId = Guid.NewGuid().ToString();
+
         var fakeUser = A.Fake<UserUpdateDTO>();
+        fakeUser.Email = "email@email.com";
 
         // Act
-        await _userService.UpdateAsync("", fakeUser);
+        await _userService.UpdateAsync(fakeUserId, fakeUser);
 
         // Assert
         A.CallTo(() => _userRepository.UpdateAsync(A<User>.Ignored)).MustHaveHappenedOnceExactly();
@@ -103,9 +109,12 @@ public class UserServiceTest
     {
         // Arrange
         var fakeUser = A.Fake<User>();
-        var fakeLogin = A.Fake<LoginDTO>();
         fakeUser.Email = "test@test.com";
-        fakeUser.Name = "Test";
+
+        var fakeLogin = A.Fake<LoginDTO>();
+
+        var fakeResponse = A.Fake<LoginValuesDTO>();
+        fakeResponse.Name = "Test";
 
         var fakeConfigSection = A.Fake<IConfigurationSection>();
         fakeConfigSection.Value = "43e4dbf0-52ed-4203-895d-42b586496bd4";
@@ -115,6 +124,8 @@ public class UserServiceTest
 
         A.CallTo(() => _userRepository.GetByEmailAndPasswordAsync(A<string>.Ignored, A<string>.Ignored))
             .Returns(fakeUser);
+
+        A.CallTo(() => _mapper.Map<LoginValuesDTO>(A<User>.Ignored)).Returns(fakeResponse);
 
         // Act
         var result = await _userService.Login(fakeLogin);
@@ -126,9 +137,9 @@ public class UserServiceTest
         result.data.Token.Should().NotBeNull();
     }
 
-    [Fact(DisplayName = nameof(UserService_Login_ReturnNull))]
+    [Fact(DisplayName = nameof(UserService_Login_ReturnBadRequest))]
     [Trait("Service", "User - Service")]
-    public async void UserService_Login_ReturnNull()
+    public async void UserService_Login_ReturnBadRequest()
     {
         // Arrange
         User fakeNullUser = null;
@@ -142,6 +153,6 @@ public class UserServiceTest
 
         // Assert
         A.CallTo(() => _userRepository.GetByEmailAndPasswordAsync(A<string>.Ignored, A<string>.Ignored)).MustHaveHappenedOnceExactly();
-        result.Should().BeNull();
+        result.hasError.Should().BeTrue();
     }
 }

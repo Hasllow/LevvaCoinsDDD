@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FakeItEasy;
 using FluentAssertions;
+using LevvaCoinsDDD.Application.Dtos;
 using LevvaCoinsDDD.Application.Dtos.Category;
 using LevvaCoinsDDD.Application.Services;
 using LevvaCoinsDDD.Domain.Models;
@@ -39,7 +40,7 @@ public class CategoryServiceTest
     public async void CategoryService_DeleteAsync_ReturnVoid()
     {
         // Arrange
-        var fakeId = "";
+        var fakeId = Guid.NewGuid().ToString();
 
         // Act
         await _categoryService.DeleteAsync(fakeId);
@@ -59,7 +60,7 @@ public class CategoryServiceTest
 
         // Assert
         A.CallTo(() => _categoryRepository.GetAllAsync()).MustHaveHappenedOnceExactly();
-        result.As<IEnumerable<CategoryDTO>>().Should().NotBeNull();
+        result.As<ResponseApiDTO<CategoryDTO>>().Should().NotBeNull();
     }
 
     [Fact(DisplayName = nameof(CategoryService_GetByIdAsync_ReturnCategoryDTO))]
@@ -68,7 +69,7 @@ public class CategoryServiceTest
     {
         // Arrange
         var fakeCategory = A.Fake<CategoryDTO>();
-        var fakeId = "";
+        var fakeId = Guid.NewGuid().ToString();
         A.CallTo(() => _mapper.Map<CategoryDTO>(A<Category>.Ignored)).Returns(fakeCategory);
 
         // Act
@@ -76,8 +77,8 @@ public class CategoryServiceTest
 
         // Assert
         A.CallTo(() => _categoryRepository.GetByIdAsync(Guid.Parse(fakeId))).MustHaveHappenedOnceExactly();
-        result.As<CategoryDTO>().Should().NotBeNull();
-        result.Should().BeEquivalentTo(fakeCategory);
+        result.As<ResponseApiDTO<CategoryDTO>>().Should().NotBeNull();
+        result.data.Should().BeEquivalentTo(fakeCategory);
     }
 
     [Fact(DisplayName = nameof(CategoryService_GetByIdAsync_ReturnCategoryDTO))]
@@ -85,10 +86,11 @@ public class CategoryServiceTest
     public async void CategoryService_UpdateAsync_ReturnVoid()
     {
         // Arrange
+        var fakeId = Guid.NewGuid().ToString();
         var fakeCategory = A.Fake<CategoryNewAndUpdateDTO>();
 
         // Act
-        await _categoryService.UpdateAsync("", fakeCategory);
+        await _categoryService.UpdateAsync(fakeId, fakeCategory);
 
         // Assert
         A.CallTo(() => _categoryRepository.UpdateAsync(A<Category>.Ignored)).MustHaveHappenedOnceExactly();
