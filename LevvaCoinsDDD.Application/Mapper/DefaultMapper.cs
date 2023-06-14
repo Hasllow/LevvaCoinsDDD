@@ -17,5 +17,7 @@ public class DefaultMapper : Profile
         CreateMap<Transaction, TransactionUpdateDTO>().ReverseMap();
         CreateMap<Transaction, TransactionResponseByUserDTO>().ReverseMap();
         CreateMap<Category, CategoryDTO>().ReverseMap();
+        CreateMap<Category, CategoryNewAndUpdateDTO>().ReverseMap();
+        CreateMap<CategoryDTO, CategoryNewAndUpdateDTO>().ReverseMap();
     }
 }
