@@ -124,13 +124,13 @@ public class UserService : IUserService
         {
             var emailIsValid = new EmailAddressAttribute().IsValid(entity.Email);
             if (!emailIsValid) return new ResponseApiDTO<bool> { hasError = true, message = "E-mail inválido." };
+
+            var emailAlreadyUsed = await _userRepository.GetByEmailAsync(entity.Email);
+            if (emailAlreadyUsed != null && emailAlreadyUsed.Id != user.Id) return new ResponseApiDTO<bool> { hasError = true, message = "E-mail já cadastrado." };
+            user.Email = entity.Email;
         }
 
-        var emailAlreadyUsed = entity.Email != null ? await _userRepository.GetByEmailAsync(entity.Email) : null;
-        if (emailAlreadyUsed != null && emailAlreadyUsed.Id != user.Id) return new ResponseApiDTO<bool> { hasError = true, message = "E-mail já cadastrado." };
-
-        user.Name = entity.Name ?? user.Name;
-        user.Email = entity.Email ?? user.Email;
+        user.Name = entity.Name.IsNullOrEmpty() ? user.Name : entity.Name; ;
 
         await _userRepository.UpdateAsync(user);
 
