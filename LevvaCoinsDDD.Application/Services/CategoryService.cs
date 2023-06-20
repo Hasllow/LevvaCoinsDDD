@@ -34,10 +34,7 @@ public class CategoryService : ICategoryService
 
     public async Task<ResponseApiDTO<bool>> DeleteAsync(string id)
     {
-        var hasConvertedId = Guid.TryParse(id, out var guidId);
-
-        if (!hasConvertedId) return new ResponseApiDTO<bool> { hasError = true, message = "ID inválido." };
-
+        var guidId = Guid.Parse(id);
         var category = await _categoryRepository.GetByIdAsync(guidId);
         if (category == null) return new ResponseApiDTO<bool> { hasError = true, message = "Essa categoria não existe." };
 
@@ -56,9 +53,7 @@ public class CategoryService : ICategoryService
 
     public async Task<ResponseApiDTO<CategoryDTO>> GetByIdAsync(string id)
     {
-        var hasConvertedId = Guid.TryParse(id, out var guidId);
-
-        if (!hasConvertedId) return new ResponseApiDTO<CategoryDTO> { hasError = true, message = "ID inválido." };
+        var guidId = Guid.Parse(id);
 
         var category = await _categoryRepository.GetByIdAsync(guidId);
 
@@ -71,7 +66,7 @@ public class CategoryService : ICategoryService
 
     public async Task<ResponseApiDTO<bool>> UpdateAsync(string id, CategoryNewAndUpdateDTO entity)
     {
-        if (!Guid.TryParse(id, out Guid guidId)) return new ResponseApiDTO<bool> { hasError = true, message = "ID inválido." };
+        var guidId = Guid.Parse(id);
 
         var category = await _categoryRepository.GetByIdAsync(guidId);
         if (category == null) return new ResponseApiDTO<bool> { hasError = true, message = "Essa categoria não existe." };
@@ -82,33 +77,4 @@ public class CategoryService : ICategoryService
 
         return new ResponseApiDTO<bool> { hasError = false };
     }
-
-    //public async Task<ResponseApiDTO<CategoryDTO>> GetByIdAsync(string id)
-    //{
-    //    var hasConvertedId = Guid.TryParse(id, out var guidId);
-
-    //    if (!hasConvertedId) return new ResponseApiDTO<CategoryDTO> { hasError = true, message = "ID inválido." };
-
-    //    var category = await _categoryRepository.GetByIdAsync(guidId);
-    //    if (category == null) return new ResponseApiDTO<CategoryDTO> { hasError = true, message = "Essa categoria não existe." };
-
-    //    var categoryMapped = _mapper.Map<CategoryDTO>(category);
-
-    //    return new ResponseApiDTO<CategoryDTO> { hasError = false, data = categoryMapped };
-
-    //}
-
-    //public async Task<ResponseApiDTO<CategoryDTO>> UpdateAsync(string id, CategoryDTO entity)
-    //{
-    //    if (!Guid.TryParse(id, out Guid guidId)) return new ResponseApiDTO<CategoryDTO> { hasError = true, message = "ID inválido." };
-
-    //    var category = await _categoryRepository.GetByIdAsync(guidId);
-    //    if (category == null) return new ResponseApiDTO<CategoryDTO> { hasError = true, message = "Essa categoria não existe." };
-
-    //    category.Description = entity.Description;
-
-    //    await _categoryRepository.UpdateAsync(category);
-
-    //    return new ResponseApiDTO<CategoryDTO> { hasError = false };
-    //}
 }
