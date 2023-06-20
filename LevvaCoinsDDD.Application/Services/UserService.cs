@@ -45,9 +45,7 @@ public class UserService : IUserService
 
     public async Task<ResponseApiDTO<bool>> DeleteAsync(string id)
     {
-        var hasConvertedId = Guid.TryParse(id, out var guidId);
-
-        if (!hasConvertedId) return new ResponseApiDTO<bool> { hasError = true, message = "ID inválido." };
+        var guidId = Guid.Parse(id);
 
         var user = await _userRepository.GetByIdAsync(guidId);
 
@@ -68,9 +66,7 @@ public class UserService : IUserService
 
     public async Task<ResponseApiDTO<UserDTO>> GetByIdAsync(string id)
     {
-        var hasConvertedId = Guid.TryParse(id, out var guidId);
-
-        if (!hasConvertedId) return new ResponseApiDTO<UserDTO> { hasError = true, message = "ID inválido." };
+        var guidId = Guid.Parse(id);
 
         var user = await _userRepository.GetByIdAsync(guidId);
 
@@ -112,9 +108,7 @@ public class UserService : IUserService
 
     public async Task<ResponseApiDTO<bool>> UpdateAsync(string id, UserUpdateDTO entity)
     {
-        var hasConvertedId = Guid.TryParse(id, out var guidId);
-
-        if (!hasConvertedId) return new ResponseApiDTO<bool> { hasError = true, message = "ID inválido." };
+        var guidId = Guid.Parse(id);
 
         var user = await _userRepository.GetByIdAsync(guidId);
 

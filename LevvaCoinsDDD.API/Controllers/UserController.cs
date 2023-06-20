@@ -1,5 +1,7 @@
-﻿using LevvaCoinsDDD.Application.Dtos.User;
+﻿using LevvaCoinsDDD.API.Utilities;
+using LevvaCoinsDDD.Application.Dtos.User;
 using LevvaCoinsDDD.Application.Interfaces.Services;
+using LevvaCoinsDDD.Application.Validators.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +21,11 @@ public class UserController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<UserDTO>> CreateAsync(UserNewAccountDTO newUser)
     {
+        var validator = new UserNewAccountDTOValidator();
+        var validRes = validator.Validate(newUser);
+
+        if (!validRes.IsValid) return BadRequest(new { hasError = true, message = validRes.Errors.FirstOrDefault()?.ErrorMessage });
+
         var response = await _userService.CreateAsync(newUser);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
@@ -29,6 +36,8 @@ public class UserController : ControllerBase
     [HttpDelete]
     public async Task<ActionResult> DeleteAsync(string id)
     {
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         var response = await _userService.DeleteAsync(id);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
@@ -49,6 +58,8 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDTO>> GetByIdAsync(string id)
     {
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         var response = await _userService.GetByIdAsync(id);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
@@ -60,6 +71,11 @@ public class UserController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<LoginValuesDTO>> Login(LoginDTO loginDTO)
     {
+        var validator = new LoginDTOValidator();
+        var validRes = validator.Validate(loginDTO);
+
+        if (!validRes.IsValid) return BadRequest(new { hasError = true, message = validRes.Errors.FirstOrDefault()?.ErrorMessage });
+
         var response = await _userService.Login(loginDTO);
 
         if (response.hasError)
@@ -71,6 +87,8 @@ public class UserController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateAsync(string id, UserUpdateDTO user)
     {
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         var response = await _userService.UpdateAsync(id, user);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });

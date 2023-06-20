@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using LevvaCoinsDDD.Application.Dtos.Category;
 
-namespace LevvaCoinsDDD.Application.Validators;
+namespace LevvaCoinsDDD.Application.Validators.Category;
 public class CategoryValidator : AbstractValidator<CategoryDTO>
 {
     public CategoryValidator()

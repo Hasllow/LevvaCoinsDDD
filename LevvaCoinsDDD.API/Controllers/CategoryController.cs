@@ -1,7 +1,7 @@
 ﻿using LevvaCoinsDDD.API.Utilities;
 using LevvaCoinsDDD.Application.Dtos.Category;
 using LevvaCoinsDDD.Application.Interfaces.Services;
-using LevvaCoinsDDD.Application.Validators;
+using LevvaCoinsDDD.Application.Validators.Category;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LevvaCoinsDDD.API.Controllers;
