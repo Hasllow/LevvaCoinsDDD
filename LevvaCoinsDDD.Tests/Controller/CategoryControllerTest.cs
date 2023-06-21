@@ -59,6 +59,7 @@ public class CategoryControllerTest
     {
         // Arrange
         var fakeCategory = A.Fake<CategoryNewAndUpdateDTO>();
+        fakeCategory.Description = "Description";
         var fakeResponse = A.Fake<ResponseApiDTO<CategoryDTO>>();
 
         fakeResponse.data = new CategoryDTO { Id = "Teste", Description = "Description" };
@@ -83,7 +84,7 @@ public class CategoryControllerTest
             .Invokes(() => { categoryDeleted = true; });
 
         // Act
-        var result = await _categoryController.DeleteAsync("");
+        var result = await _categoryController.DeleteAsync(Guid.NewGuid().ToString());
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
@@ -105,7 +106,7 @@ public class CategoryControllerTest
             });
 
         // Act
-        var result = await _categoryController.UpdateAsync("", fakeCategory);
+        var result = await _categoryController.UpdateAsync(Guid.NewGuid().ToString(), fakeCategory);
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();

@@ -59,6 +59,11 @@ public class UserControllerTest
     {
         // Arrange
         var fakeUser = A.Fake<UserNewAccountDTO>();
+        fakeUser.Name = "Name";
+        fakeUser.Email = "email@email.com";
+        fakeUser.Password = "Password";
+        fakeUser.ConfirmPassword = "Password";
+
         var fakeResponse = A.Fake<ResponseApiDTO<UserDTO>>();
         fakeResponse.data = A.Fake<UserDTO>();
         A.CallTo(() => _userService.CreateAsync(A<UserNewAccountDTO>.Ignored)).Returns(fakeResponse);
@@ -81,7 +86,7 @@ public class UserControllerTest
             .Invokes(() => { userDeleted = true; });
 
         // Act
-        var result = await _userController.DeleteAsync("");
+        var result = await _userController.DeleteAsync(Guid.NewGuid().ToString());
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
@@ -103,7 +108,7 @@ public class UserControllerTest
             });
 
         // Act
-        var result = await _userController.UpdateAsync("", fakeUser);
+        var result = await _userController.UpdateAsync(Guid.NewGuid().ToString(), fakeUser);
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
@@ -117,6 +122,8 @@ public class UserControllerTest
     {
         // Arrange
         var fakeLogin = A.Fake<LoginDTO>();
+        fakeLogin.Email = "email@email.com";
+        fakeLogin.Password = "Password";
         var fakeResponse = A.Fake<ResponseApiDTO<LoginValuesDTO>>();
         fakeResponse.data = A.Fake<LoginValuesDTO>();
         fakeResponse.hasError = true;
@@ -137,6 +144,8 @@ public class UserControllerTest
     {
         // Arrange
         var fakeLogin = A.Fake<LoginDTO>();
+        fakeLogin.Email = "email@email.com";
+        fakeLogin.Password = "Password";
 
         // Act
         var result = await _userController.Login(fakeLogin);
