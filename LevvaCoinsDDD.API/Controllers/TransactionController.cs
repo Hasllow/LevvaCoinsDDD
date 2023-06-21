@@ -1,5 +1,7 @@
-﻿using LevvaCoinsDDD.Application.Dtos.Transaction;
+﻿using LevvaCoinsDDD.API.Utilities;
+using LevvaCoinsDDD.Application.Dtos.Transaction;
 using LevvaCoinsDDD.Application.Interfaces.Services;
+using LevvaCoinsDDD.Application.Validators.Transactions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LevvaCoinsDDD.API.Controllers;
@@ -17,6 +19,11 @@ public class TransactionController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> CreateAsync(TransactionNewDTO transaction)
     {
+        var validator = new TransactionNewDTOValidator();
+        var validRes = validator.Validate(transaction);
+
+        if (!validRes.IsValid) return BadRequest(new { hasError = true, message = validRes.Errors.FirstOrDefault()?.ErrorMessage });
+
         Request.Headers.TryGetValue("Authorization", out var token);
         var response = await _transactionService.CreateAsync(transaction, token);
 
@@ -28,6 +35,8 @@ public class TransactionController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync(string id)
     {
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         Request.Headers.TryGetValue("Authorization", out var token);
         var response = await _transactionService.DeleteAsync(id, token);
 
@@ -50,6 +59,8 @@ public class TransactionController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<TransactionResponseByUserDTO>> GetByIdAsync(string id)
     {
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         Request.Headers.TryGetValue("Authorization", out var token);
         var response = await _transactionService.GetByIdAsync(id, token);
 
@@ -61,6 +72,13 @@ public class TransactionController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateAsync(string id, TransactionUpdateDTO transaction)
     {
+        var validator = new TransactionUpdateDTOValidator();
+        var validRes = validator.Validate(transaction);
+
+        if (!validRes.IsValid) return BadRequest(new { hasError = true, message = validRes.Errors.FirstOrDefault()?.ErrorMessage });
+
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         Request.Headers.TryGetValue("Authorization", out var token);
         var response = await _transactionService.UpdateAsync(id, transaction, token);
 
