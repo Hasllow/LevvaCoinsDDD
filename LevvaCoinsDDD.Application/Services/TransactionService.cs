@@ -36,21 +36,19 @@ public class TransactionService : ITransactionService
 
     public async Task<ResponseApiDTO<bool>> DeleteAsync(string transactionId, string token)
     {
-        var hasConvertedId = Guid.TryParse(transactionId, out var transactionGuidId);
-
-        if (!hasConvertedId) return new ResponseApiDTO<bool> { hasError = true, message = "ID inválido." };
+        var guidId = Guid.Parse(transactionId);
 
         var tokenDecoded = token.Split(' ')[1];
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(tokenDecoded);
         var idFromToken = jwtSecurityToken.Claims.First(claim => claim.Type == "nameid").Value;
 
-        var transaction = await _transactionRepository.GetByIdAsync(transactionGuidId);
+        var transaction = await _transactionRepository.GetByIdAsync(guidId);
 
         if (transaction == null) return new ResponseApiDTO<bool> { hasError = true, message = "Essa transação não existe." };
         if (idFromToken != transaction.UserID.ToString()) return new ResponseApiDTO<bool> { hasError = true, message = "Usuário não autorizado." };
 
-        await _transactionRepository.DeleteAsync(transactionGuidId);
+        await _transactionRepository.DeleteAsync(guidId);
 
         return new ResponseApiDTO<bool> { hasError = false };
     }
@@ -64,7 +62,7 @@ public class TransactionService : ITransactionService
 
         var hasConvertedId = Guid.TryParse(idFromToken, out var userGuidId);
 
-        if (!hasConvertedId) return new ResponseApiDTO<TransactionResponseByUserDTO> { hasError = true, message = "ID inválido." };
+        if (!hasConvertedId) return new ResponseApiDTO<TransactionResponseByUserDTO> { hasError = true, message = "ID inválida." };
 
         var transactions = await _transactionRepository.GetByUserIdAsync(userGuidId);
         var mappedTransactions = _mapper.Map<IEnumerable<TransactionResponseByUserDTO>>(transactions);
@@ -74,9 +72,7 @@ public class TransactionService : ITransactionService
 
     public async Task<ResponseApiDTO<TransactionResponseByUserDTO>> GetByIdAsync(string transactionId, string token)
     {
-        var hasConvertedId = Guid.TryParse(transactionId, out var guidId);
-
-        if (!hasConvertedId) return new ResponseApiDTO<TransactionResponseByUserDTO> { hasError = true, message = "ID inválido." };
+        var guidId = Guid.Parse(transactionId);
 
         var tokenDecoded = token.Split(' ')[1];
         var handler = new JwtSecurityTokenHandler();
@@ -108,9 +104,7 @@ public class TransactionService : ITransactionService
 
     public async Task<ResponseApiDTO<bool>> UpdateAsync(string transactionId, TransactionUpdateDTO entity, string token)
     {
-        var hasConvertedId = Guid.TryParse(transactionId, out var guidId);
-
-        if (!hasConvertedId) return new ResponseApiDTO<bool> { hasError = true, message = "ID inválido." };
+        var guidId = Guid.Parse(transactionId);
 
         var tokenDecoded = token.Split(' ')[1];
         var handler = new JwtSecurityTokenHandler();

@@ -1,5 +1,7 @@
-﻿using LevvaCoinsDDD.Application.Dtos.Category;
+﻿using LevvaCoinsDDD.API.Utilities;
+using LevvaCoinsDDD.Application.Dtos.Category;
 using LevvaCoinsDDD.Application.Interfaces.Services;
+using LevvaCoinsDDD.Application.Validators.Category;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LevvaCoinsDDD.API.Controllers;
@@ -17,16 +19,23 @@ public class CategoryController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> CreateAsync(CategoryNewAndUpdateDTO category)
     {
+        var validator = new CategoryNewAndUpdateValidator();
+        var validRes = validator.Validate(category);
+
+        if (!validRes.IsValid) return BadRequest(new { hasError = true, message = validRes.Errors.FirstOrDefault()?.ErrorMessage });
+
         var response = await _categoryService.CreateAsync(category);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
-        return Created(response.data.Id, response.data);
+        return Created("response.data.Id", response.data);
     }
 
     [HttpDelete]
     public async Task<ActionResult> DeleteAsync(string id)
     {
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         var response = await _categoryService.DeleteAsync(id);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
@@ -47,6 +56,8 @@ public class CategoryController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<CategoryDTO>> GetByIdAsync(string id)
     {
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         var response = await _categoryService.GetByIdAsync(id);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
@@ -57,6 +68,8 @@ public class CategoryController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateAsync(string id, CategoryNewAndUpdateDTO category)
     {
+        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+
         var response = await _categoryService.UpdateAsync(id, category);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });

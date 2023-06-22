@@ -79,6 +79,11 @@ public class TransactionControllerTest
         var fakeResponse = A.Fake<ResponseApiDTO<TransactionResponseByUserDTO>>();
         fakeResponse.data = A.Fake<TransactionResponseByUserDTO>();
         var fakeTransaction = A.Fake<TransactionNewDTO>();
+
+        fakeTransaction.Description = "Teste";
+        fakeTransaction.Amount = 10;
+        fakeTransaction.CategoryID = Guid.NewGuid().ToString();
+
         A.CallTo(() => _transactionService.CreateAsync(A<TransactionNewDTO>.Ignored, A<string>.Ignored)).Returns(fakeResponse);
 
         // Act
@@ -99,7 +104,7 @@ public class TransactionControllerTest
             .Invokes(() => { transactionDeleted = true; });
 
         // Act
-        var result = await _transactionController.DeleteAsync("");
+        var result = await _transactionController.DeleteAsync(Guid.NewGuid().ToString());
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
@@ -112,6 +117,13 @@ public class TransactionControllerTest
     {
         // Arrange
         var fakeTransaction = A.Fake<TransactionUpdateDTO>();
+
+        fakeTransaction.Description = "Teste";
+        fakeTransaction.Amount = 10;
+        fakeTransaction.CategoryID = Guid.NewGuid().ToString();
+        fakeTransaction.UserID = Guid.NewGuid().ToString();
+        fakeTransaction.Date = new DateTime();
+
         var fakeTransactionDescription = "Teste";
 
         A.CallTo(() => _transactionService.UpdateAsync(A<string>.Ignored, A<TransactionUpdateDTO>.Ignored, A<string>.Ignored))
@@ -121,7 +133,7 @@ public class TransactionControllerTest
             });
 
         // Act
-        var result = await _transactionController.UpdateAsync("", fakeTransaction);
+        var result = await _transactionController.UpdateAsync(Guid.NewGuid().ToString(), fakeTransaction);
 
         // Assert
         result.As<NoContentResult>().Should().NotBeNull();
