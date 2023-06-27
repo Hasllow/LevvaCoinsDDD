@@ -4,6 +4,7 @@ using LevvaCoinsDDD.Application.Dtos.Transaction;
 using LevvaCoinsDDD.Application.Interfaces.Services;
 using LevvaCoinsDDD.Domain.Models;
 using LevvaCoinsDDD.Infra.Data.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace LevvaCoinsDDD.Application.Services;
@@ -91,15 +92,17 @@ public class TransactionService : ITransactionService
 
     public async Task<ResponseApiDTO<TransactionResponseByUserDTO>> SearchAsync(string searchParam, string token)
     {
-        var allTransactions = await GetAllAsync(token);
+        if (string.IsNullOrEmpty(searchParam)) return await GetAllAsync(token);
 
-        var filteredTransactions = allTransactions.collectionData.Where(transaction =>
-            transaction.Description.Contains(searchParam, StringComparison.InvariantCultureIgnoreCase) ||
-            transaction.Amount.ToString().Contains(searchParam, StringComparison.InvariantCultureIgnoreCase) ||
-            Enum.GetName(transaction.Type).Contains(searchParam, StringComparison.InvariantCultureIgnoreCase) ||
-            transaction.Category.Description.Contains(searchParam, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        var tokenDecoded = token.Split(' ')[1];
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(tokenDecoded);
+        var idFromToken = jwtSecurityToken.Claims.First(claim => claim.Type == "nameid").Value;
 
-        return new ResponseApiDTO<TransactionResponseByUserDTO> { hasError = false, collectionData = filteredTransactions };
+        var searchResults = await _transactionRepository.Search(searchParam, Guid.Parse(idFromToken)).ToListAsync();
+        var mappedTransactions = _mapper.Map<IEnumerable<TransactionResponseByUserDTO>>(searchResults);
+
+        return new ResponseApiDTO<TransactionResponseByUserDTO> { hasError = false, collectionData = mappedTransactions };
     }
 
     public async Task<ResponseApiDTO<bool>> UpdateAsync(string transactionId, TransactionUpdateDTO entity, string token)

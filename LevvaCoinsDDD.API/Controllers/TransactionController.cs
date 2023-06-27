@@ -56,18 +56,18 @@ public class TransactionController : ControllerBase
         return Ok(response.collectionData);
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TransactionResponseByUserDTO>> GetByIdAsync(string id)
-    {
-        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+    //[HttpGet("{id}")]
+    //public async Task<ActionResult<TransactionResponseByUserDTO>> GetByIdAsync(string id)
+    //{
+    //    if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
 
-        Request.Headers.TryGetValue("Authorization", out var token);
-        var response = await _transactionService.GetByIdAsync(id, token);
+    //    Request.Headers.TryGetValue("Authorization", out var token);
+    //    var response = await _transactionService.GetByIdAsync(id, token);
 
-        if (response.hasError) return BadRequest(new { response.hasError, response.message });
+    //    if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
-        return Ok(response.data);
-    }
+    //    return Ok(response.data);
+    //}
 
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateAsync(string id, TransactionUpdateDTO transaction)
@@ -87,7 +87,7 @@ public class TransactionController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("search/{searchParam}")]
+    [HttpGet("{searchParam}")]
     public async Task<ActionResult<TransactionResponseByUserDTO>> SearchAsync(string searchParam)
     {
         Request.Headers.TryGetValue("Authorization", out var token);

@@ -24,17 +24,7 @@ public class TransactionRepository : ITransactionRepository
         _context.Transaction.Add(entity);
         await _context.SaveChangesAsync();
 
-        return await _context.Transaction.Where(transaction => transaction.Id == entity.Id).Select(transaction =>
-        new Transaction
-        {
-            Id = transaction.Id,
-            Description = transaction.Description,
-            Amount = transaction.Amount,
-            Type = transaction.Type,
-            Date = transaction.Date,
-            CategoryID = transaction.Category.Id,
-            Category = transaction.Category,
-        }).SingleAsync();
+        return await _context.Transaction.Where(transaction => transaction.Id == entity.Id).Include("Category").SingleAsync();
     }
 
     public async Task DeleteAsync(Guid id)
@@ -56,21 +46,23 @@ public class TransactionRepository : ITransactionRepository
 
     public async Task<IEnumerable<Transaction>> GetByUserIdAsync(Guid userId)
     {
-        return await _context.Transaction.Where(transaction => transaction.UserID == userId).Select(transaction =>
-        new Transaction
-        {
-            Id = transaction.Id,
-            Description = transaction.Description,
-            Amount = transaction.Amount,
-            Type = transaction.Type,
-            Date = transaction.Date,
-            CategoryID = transaction.Category.Id,
-            Category = transaction.Category,
-        }).ToListAsync();
+        return await _context.Transaction.Where(transaction => transaction.UserID == userId).Include("Category").ToListAsync();
     }
     public async Task UpdateAsync(Transaction entity)
     {
         _context.Transaction.Update(entity);
         await _context.SaveChangesAsync();
+    }
+
+    public IQueryable<Transaction> Search(string searchParam, Guid userID)
+    {
+        return _context.Transaction.Where(transaction =>
+        transaction.UserID == userID &&
+        (
+            EF.Functions.Like((transaction.Type == 0 ? "Débito" : "Crédito"), $"%{searchParam}%") ||
+            transaction.Description.Contains(searchParam, StringComparison.InvariantCultureIgnoreCase) ||
+            transaction.Amount.ToString().Contains(searchParam, StringComparison.InvariantCultureIgnoreCase) ||
+            transaction.Category.Description.Contains(searchParam, StringComparison.InvariantCultureIgnoreCase)
+         )).Include("Category");
     }
 }
