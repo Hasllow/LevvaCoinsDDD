@@ -1,4 +1,5 @@
-﻿using LevvaCoinsDDD.Application.Interfaces.Services;
+﻿using LevvaCoinsDDD.Application.Handlers.User;
+using LevvaCoinsDDD.Application.Interfaces.Services;
 using LevvaCoinsDDD.Application.Mapper;
 using LevvaCoinsDDD.Application.Services;
 using LevvaCoinsDDD.Infra.Data.Context;
@@ -54,5 +55,8 @@ public static class DependencyInjector
         service.AddScoped<IUserService, UserService>();
         service.AddScoped<ITransactionService, TransactionService>();
         service.AddScoped<ICategoryService, CategoryService>();
+
+        service.AddScoped<ICreateUserHandler, CreateUserHandler>();
+
     }
 }

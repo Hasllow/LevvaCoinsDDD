@@ -1,5 +1,8 @@
 ﻿using LevvaCoinsDDD.API.Utilities;
+using LevvaCoinsDDD.Application.Commands.Requests.User;
+using LevvaCoinsDDD.Application.Commands.Response.User;
 using LevvaCoinsDDD.Application.Dtos.User;
+using LevvaCoinsDDD.Application.Handlers.User;
 using LevvaCoinsDDD.Application.Interfaces.Services;
 using LevvaCoinsDDD.Application.Validators.User;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +14,12 @@ namespace LevvaCoinsDDD.API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly ICreateUserHandler _createUserHandler;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, ICreateUserHandler createUserHandler)
     {
         _userService = userService;
+        _createUserHandler = createUserHandler;
     }
 
     [HttpPost]
@@ -31,6 +36,23 @@ public class UserController : ControllerBase
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
         return Created(response.data.Id, response.data);
+    }
+
+    [HttpPost("create")]
+    [AllowAnonymous]
+    public async Task<ActionResult<CreateUserResponse>> CreateWithRequestAsync(CreateUserRequest command)
+    {
+        //var validator = new UserNewAccountDTOValidator();
+        //var validRes = validator.Validate(newUser);
+
+        //if (!validRes.IsValid) return BadRequest(new { hasError = true, message = validRes.Errors.FirstOrDefault()?.ErrorMessage });
+
+        var response = await _createUserHandler.Handle(command);
+
+        //if (response.hasError) return BadRequest(new { response.hasError, response.message });
+
+        //return Created(response.data.Id, response.data);
+        return Ok(response);
     }
 
     [HttpDelete]
