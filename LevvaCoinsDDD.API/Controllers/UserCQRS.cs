@@ -1,31 +1,36 @@
 ﻿using LevvaCoinsDDD.API.Utilities;
+using LevvaCoinsDDD.Application.Commands.Requests.User;
+using LevvaCoinsDDD.Application.Commands.Response.User;
 using LevvaCoinsDDD.Application.Dtos.User;
-using LevvaCoinsDDD.Application.Interfaces.Services;
+using LevvaCoinsDDD.Application.Queries.Requests.User;
+using LevvaCoinsDDD.Application.Queries.Responses.User;
 using LevvaCoinsDDD.Application.Validators.User;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LevvaCoinsDDD.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class UserController : ControllerBase
+public class UserCQRS : ControllerBase
 {
-    private readonly IUserService _userService;
-    public UserController(IUserService userService)
+    private readonly IMediator _mediator;
+
+    public UserCQRS(IMediator mediator)
     {
-        _userService = userService;
+        _mediator = mediator;
     }
 
     [HttpPost]
     [AllowAnonymous]
-    public async Task<ActionResult<UserDTO>> CreateAsync(UserNewAccountDTO newUser)
+    public async Task<ActionResult<CreateUserResponse>> CreateAsync(CreateUserRequest newUser)
     {
-        var validator = new UserNewAccountDTOValidator();
+        var validator = new CreateUserRequestValidator();
         var validRes = validator.Validate(newUser);
 
         if (!validRes.IsValid) return BadRequest(new { hasError = true, message = validRes.Errors.FirstOrDefault()?.ErrorMessage });
 
-        var response = await _userService.CreateAsync(newUser);
+        var response = await _mediator.Send(newUser);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
@@ -33,11 +38,14 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete]
+    [AllowAnonymous]
     public async Task<ActionResult> DeleteAsync(string id)
     {
         if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
 
-        var response = await _userService.DeleteAsync(id);
+        var request = new DeleteUserRequest(id);
+
+        var response = await _mediator.Send(request);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
@@ -45,9 +53,10 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllAsync()
+    [AllowAnonymous]
+    public async Task<ActionResult<IEnumerable<GetAllUsersResponse>>> GetAllAsync()
     {
-        var response = await _userService.GetAllAsync();
+        var response = await _mediator.Send(new GetAllUsersRequest());
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
@@ -55,11 +64,12 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDTO>> GetByIdAsync(string id)
+    [AllowAnonymous]
+    public async Task<ActionResult<GetUserByIdResponse>> GetAsync(string id)
     {
-        if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
+        var request = new GetUserByIdRequest() { Id = id };
 
-        var response = await _userService.GetByIdAsync(id);
+        var response = await _mediator.Send(request);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
@@ -68,14 +78,14 @@ public class UserController : ControllerBase
 
     [HttpPost("auth")]
     [AllowAnonymous]
-    public async Task<ActionResult<LoginValuesDTO>> Login(LoginDTO loginDTO)
+    public async Task<ActionResult<LoginValuesDTO>> Login(LoginUserRequest login)
     {
-        var validator = new LoginDTOValidator();
-        var validRes = validator.Validate(loginDTO);
+        var validator = new LoginUserRequestValidator();
+        var validRes = validator.Validate(login);
 
         if (!validRes.IsValid) return BadRequest(new { hasError = true, message = validRes.Errors.FirstOrDefault()?.ErrorMessage });
 
-        var response = await _userService.Login(loginDTO);
+        var response = await _mediator.Send(login);
 
         if (response.hasError)
             return BadRequest(new { response.hasError, response.message });
@@ -84,11 +94,14 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult> UpdateAsync(string id, UserUpdateDTO user)
     {
         if (!IdValidator.IsValidIdFormat(id)) return BadRequest(new { hasError = true, message = "Id Inválida." });
 
-        var response = await _userService.UpdateAsync(id, user);
+        var request = new UpdateUserRequest(id, user);
+
+        var response = await _mediator.Send(request);
 
         if (response.hasError) return BadRequest(new { response.hasError, response.message });
 
