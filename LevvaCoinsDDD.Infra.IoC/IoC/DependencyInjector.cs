@@ -1,4 +1,4 @@
-﻿using LevvaCoinsDDD.Application.Handlers.User;
+﻿using LevvaCoinsDDD.Application;
 using LevvaCoinsDDD.Application.Interfaces.Services;
 using LevvaCoinsDDD.Application.Mapper;
 using LevvaCoinsDDD.Application.Services;
@@ -56,7 +56,7 @@ public static class DependencyInjector
         service.AddScoped<ITransactionService, TransactionService>();
         service.AddScoped<ICategoryService, CategoryService>();
 
-        service.AddScoped<ICreateUserHandler, CreateUserHandler>();
+        service.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MediatREntryPoint).Assembly));
 
     }
 }
