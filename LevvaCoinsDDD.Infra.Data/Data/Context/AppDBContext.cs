@@ -4,6 +4,12 @@ using Microsoft.EntityFrameworkCore;
 namespace LevvaCoinsDDD.Infra.Data.Context;
 public class AppDBContext : DbContext
 {
+
+    public AppDBContext()
+    {
+
+    }
+
     public AppDBContext(DbContextOptions<AppDBContext> options) : base(options) { }
 
     public DbSet<User> User { get; set; }

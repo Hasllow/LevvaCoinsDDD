@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LevvaCoinsDDD.API\LevvaCoinsDDD.API.csproj" />
-    <ProjectReference Include="..\LevvaCoinsDDD.Infra\LevvaCoinsDDD.Infra.Data.csproj" />
+    <ProjectReference Include="..\LevvaCoinsDDD.Infra.Data\LevvaCoinsDDD.Infra.Data.csproj" />
   </ItemGroup>
 
 </Project>

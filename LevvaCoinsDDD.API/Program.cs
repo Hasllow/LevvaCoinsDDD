@@ -10,6 +10,7 @@ namespace LevvaCoinsDDD.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddLevvaService(builder.Configuration);
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -44,7 +45,6 @@ namespace LevvaCoinsDDD.API
                 });
             });
 
-            builder.Services.AddLevvaService(builder.Configuration);
 
 
             builder.Services.AddCors(policyBuilder =>
