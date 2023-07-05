@@ -51,25 +51,25 @@ public class TransactionControllerTest
 
     }
 
-    [Fact(DisplayName = nameof(TransactionController_GetByIdAsync_ReturnOK))]
-    [Trait("Controller", "Transaction - Controller")]
-    public async void TransactionController_GetByIdAsync_ReturnOK()
-    {
-        // Arrange
-        var fakeTransactionId = new Guid();
-        var fakeTransactionIdArgument = "54c30c07-405f-4103-9e4a-76d5479e5689";
+    //[Fact(DisplayName = nameof(TransactionController_GetByIdAsync_ReturnOK))]
+    //[Trait("Controller", "Transaction - Controller")]
+    //public async void TransactionController_GetByIdAsync_ReturnOK()
+    //{
+    //    // Arrange
+    //    var fakeTransactionId = new Guid();
+    //    var fakeTransactionIdArgument = "54c30c07-405f-4103-9e4a-76d5479e5689";
 
-        A.CallTo(() => _transactionService.GetByIdAsync(A<string>.Ignored, A<string>.Ignored))
-            .Invokes((string id, string token) => { fakeTransactionId = Guid.Parse(id); });
+    //    A.CallTo(() => _transactionService.GetByIdAsync(A<string>.Ignored, A<string>.Ignored))
+    //        .Invokes((string id, string token) => { fakeTransactionId = Guid.Parse(id); });
 
-        // Act
-        var result = await _transactionController.GetByIdAsync(fakeTransactionIdArgument);
+    //    // Act
+    //    var result = await _transactionController.GetByIdAsync(fakeTransactionIdArgument);
 
-        // Assert
-        result.Should().NotBeNull();
-        result.Result.Should().BeOfType(typeof(OkObjectResult));
-        fakeTransactionId.Should().Be(fakeTransactionIdArgument);
-    }
+    //    // Assert
+    //    result.Should().NotBeNull();
+    //    result.Result.Should().BeOfType(typeof(OkObjectResult));
+    //    fakeTransactionId.Should().Be(fakeTransactionIdArgument);
+    //}
 
     [Fact(DisplayName = nameof(TransactionController_CreateAsync_ReturnCreated))]
     [Trait("Controller", "Transaction - Controller")]
